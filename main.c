@@ -9,7 +9,7 @@
 #define IN_ORDER 1
 #define PRE_ORDER 2
 #define POST_ORDER 3
-#define DELIM " "
+#define DELIM ","
 
 typedef struct Node {
     int value;
@@ -120,6 +120,7 @@ void printTree(Tree *tree, int order) {
             printInOrder(tree->root);
             break;
     }
+    printf("\b\n");
 }
 Node* search(Node* node, int value){
     if (node == NULL || node->value == value){
@@ -135,6 +136,18 @@ Node* searchTree (Tree* tree, int value){
     return search(tree->root,value);
 }
 
+void searchAndPrint(Tree* tree, int value){
+    Node* node = searchTree(tree,value);
+    printf("\n");
+    if (node !=NULL){
+        printf("searched and found: ");
+        printNode(node);
+    } else {
+        printf("no node with value %d found", value);
+    }
+    printf("\n");
+}
+
 
 int main() {
     Tree *tree = createTree(5);
@@ -147,22 +160,6 @@ int main() {
     printTree(tree, IN_ORDER);
     printTree(tree, POST_ORDER);
     printTree(tree, PRE_ORDER);
-    int value = 7;
-    Node* node = searchTree(tree,7);
-    if (node !=NULL){
-        printf("\nsearched and found: ");
-        printNode(node);
-        printf("\n");
-    } else {
-        printf("no node with value %d found \n", value);
-    }
-    value = 15;
-    node = searchTree(tree,15);
-    if (node !=NULL){
-        printf("\nsearched and found: ");
-        printNode(node);
-        printf("\n");
-    } else {
-        printf("no node with value %d found \n", value);
-    }
+    searchAndPrint(tree,7);
+    searchAndPrint(tree,15);
 }
