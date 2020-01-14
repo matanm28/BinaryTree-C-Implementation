@@ -4,12 +4,15 @@
 
 #define TRUE 1
 #define FALSE 0
-#define NODE_COUNT_DEFAULT 1
+#define NODE_COUNT_DEFAULT 0
 #define ROOT_DEFAULT_VALUE 0
-#define IN_ORDER 1
-#define PRE_ORDER 2
-#define POST_ORDER 3
 #define DELIM ","
+#define RELATION_OPERATOR >
+
+
+enum Traversal {
+    IN_ORDER = 1, PRE_ORDER, POST_ORDER
+};
 
 typedef struct Node {
     int value;
@@ -17,11 +20,15 @@ typedef struct Node {
     struct Node *right;
 } Node;
 
+
 typedef struct Tree {
     int nodeCount;
     Node *root;
 } Tree;
 
+Node *search(Node *node, int value);
+
+Node *searchTree(Tree *tree, int value);
 Node *createNode(int value) {
     Node *node = (Node *) malloc(sizeof(Node));
     node->value = value;
@@ -30,35 +37,32 @@ Node *createNode(int value) {
     return node;
 }
 
-Tree *createTree(int value) {
+Tree *createTree() {
     Tree *tree = (Tree *) malloc(sizeof(Tree));
     tree->nodeCount = NODE_COUNT_DEFAULT;
-    tree->root = createNode(value);
+    tree->root = NULL;
     return tree;
 }
 
-void deleteNode(Node* node){
-    if (node == NULL){
+void deleteNode(Node *node) {
+    if (node == NULL) {
         return;
     }
     deleteNode(node->left);
-    free(node->left);
+    //free(node->left);
     deleteNode(node->right);
-    free(node->right);
+    //free(node->right);
+    free(node);
 }
 
-void deleteTree(Tree* tree){
+void deleteTree(Tree *tree) {
     deleteNode(tree->root);
-}
-
-Tree *createTreeNoValue() {
-    return createTree(ROOT_DEFAULT_VALUE);
 }
 
 Node *insertNode(Node *currNode, Node *newNode) {
     if (currNode == NULL) {
         return newNode;
-    } else if (newNode->value >= currNode->value) {
+    } else if (newNode->value RELATION_OPERATOR currNode->value) {
         currNode->right = insertNode(currNode->right, newNode);
     } else {
         currNode->left = insertNode(currNode->left, newNode);
@@ -66,8 +70,16 @@ Node *insertNode(Node *currNode, Node *newNode) {
 }
 
 void insert(Tree *tree, int value) {
-    Node *newNode = createNode(value);
-    tree->root = insertNode(tree->root, newNode);
+    if (searchTree(tree, value) != NULL) {
+        return;
+    }
+    if (tree->nodeCount == 0) {
+        tree->root = createNode(value);
+    } else {
+        Node *newNode = createNode(value);
+        tree->root = insertNode(tree->root, newNode);
+    }
+    tree->nodeCount++;
 }
 
 void printNode(Node *node) {
@@ -104,7 +116,7 @@ void printPreOrder(Node *node) {
     printPreOrder(node->right);
 }
 
-void printTree(Tree *tree, int order) {
+void printTree(Tree *tree, enum Traversal order) {
     switch (order) {
         case PRE_ORDER:
             printf("\nPre order traversal of binary tree is:\n");
@@ -122,24 +134,25 @@ void printTree(Tree *tree, int order) {
     }
     printf("\b\n");
 }
-Node* search(Node* node, int value){
-    if (node == NULL || node->value == value){
+
+Node *search(Node *node, int value) {
+    if (node == NULL || node->value == value) {
         return node;
-    } else if (value >= node->value){
-        return search(node->right,value);
+    } else if (value RELATION_OPERATOR node->value) {
+        return search(node->right, value);
     } else {
-        return search(node->left,value);
+        return search(node->left, value);
     }
 }
 
-Node* searchTree (Tree* tree, int value){
-    return search(tree->root,value);
+Node *searchTree(Tree *tree, int value) {
+    return search(tree->root, value);
 }
 
-void searchAndPrint(Tree* tree, int value){
-    Node* node = searchTree(tree,value);
+void searchAndPrint(Tree *tree, int value) {
+    Node *node = searchTree(tree, value);
     printf("\n");
-    if (node !=NULL){
+    if (node != NULL) {
         printf("searched and found: ");
         printNode(node);
     } else {
@@ -150,7 +163,8 @@ void searchAndPrint(Tree* tree, int value){
 
 
 int main() {
-    Tree *tree = createTree(5);
+    Tree *tree = createTree();
+    insert(tree, 5);
     insert(tree, 3);
     insert(tree, 2);
     insert(tree, 4);
@@ -160,6 +174,7 @@ int main() {
     printTree(tree, IN_ORDER);
     printTree(tree, POST_ORDER);
     printTree(tree, PRE_ORDER);
-    searchAndPrint(tree,7);
-    searchAndPrint(tree,15);
+    searchAndPrint(tree, 7);
+    searchAndPrint(tree, 15);
+    deleteTree(tree);
 }
