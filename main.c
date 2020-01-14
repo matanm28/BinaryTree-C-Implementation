@@ -159,7 +159,6 @@ void searchAndPrint(Tree *tree, int value) {
         printf("no node with value %d found", value);
     }
     printf("\n");
-
 }
 
 
